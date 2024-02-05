@@ -11,17 +11,18 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/app/_components/ui/sheet";
-import { BarberShop, Service } from "@prisma/client";
+import { BarberShop, Booking, Service } from "@prisma/client";
 import { ptBR } from "date-fns/locale";
 import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { generateDayTimeList } from "../_helpers/hours";
 import { format, setHours, setMinutes } from "date-fns";
-import { saveBooking } from "../_actions/save-booking";
+import { saveBooking } from "../_actions/save-bookings";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { getDayBooking } from "../_actions/get-day-bookings";
 
 interface ServiceItemProps {
     barbershop: BarberShop;
@@ -42,6 +43,21 @@ const ServiceItem = ({
     const [hour, setHour] = useState<string | undefined>();
     const [submitIsLoading, setSubmitIsLoading] = useState(false);
     const [sheetIsOpen, setSheetIsOpen] = useState(false);
+    const [dayBookings, setDayBooking] = useState<Booking[]>([]);
+
+    useEffect(() => {
+        if (!date) {
+            return;
+        }
+
+        const refreshAvailableHours = async () => {
+            const _dayBookings = await getDayBooking(date);
+
+            setDayBooking(_dayBookings);
+        };
+
+        refreshAvailableHours();
+    }, [date]);
 
     const handleDateClick = (date: Date | undefined) => {
         setDate(date);
@@ -102,8 +118,30 @@ const ServiceItem = ({
     };
 
     const timeList = useMemo(() => {
-        return date ? generateDayTimeList(date) : [];
-    }, [date]);
+        if (!date) {
+            return [];
+        }
+
+        return generateDayTimeList(date).filter((time) => {
+            const timeHour = Number(time.split(":")[0]);
+            const timeMinutes = Number(time.split(":")[1]);
+
+            const booking = dayBookings.find((booking) => {
+                const bookingHour = booking.date.getHours();
+                const bookingMinutes = booking.date.getMinutes();
+
+                return (
+                    bookingHour === timeHour && bookingMinutes === timeMinutes
+                );
+            });
+
+            if (!booking) {
+                return true;
+            }
+
+            return false;
+        });
+    }, [date, dayBookings]);
 
     return (
         <Card>
