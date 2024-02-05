@@ -51,13 +51,13 @@ const ServiceItem = ({
         }
 
         const refreshAvailableHours = async () => {
-            const _dayBookings = await getDayBooking(date);
+            const _dayBookings = await getDayBooking(barbershop.id, date);
 
             setDayBooking(_dayBookings);
         };
 
         refreshAvailableHours();
-    }, [date]);
+    }, [date, barbershop.id]);
 
     const handleDateClick = (date: Date | undefined) => {
         setDate(date);
