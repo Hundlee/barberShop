@@ -197,7 +197,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
                         </CardContent>
                     </Card>
 
-                    <SheetFooter className="flex-row gap-3 mt-72">
+                    <SheetFooter className="flex-row gap-3 mt-6">
                         <SheetClose asChild>
                             <Button variant="secondary" className="w-full">
                                 Voltar
