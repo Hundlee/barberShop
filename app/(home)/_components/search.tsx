@@ -21,14 +21,19 @@ const formSchema = z.object({
             required_error: "Campo obrigatório",
         })
         .trim()
-        .min(1, "Busque por uma barbearia..."),
+        .min(1, "Campo obrigatório"),
 });
 
-const Search = () => {
+interface SearchProps {
+    defaultValues?: z.infer<typeof formSchema>;
+}
+
+const Search = ({ defaultValues }: SearchProps) => {
     const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
+        defaultValues,
     });
 
     const handleSubmit = (data: z.infer<typeof formSchema>) => {
@@ -36,7 +41,7 @@ const Search = () => {
     };
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
             <Form {...form}>
                 <form
                     className="flex w-full gap-4"
